@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings
 from typing import List
 import os
+import re
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,6 +14,29 @@ DEFAULT_DATABASE_URL = (
     "postgresql://bookstore_q5pc_user:PASSWORD_HERE@"
     "dpg-d9u8r9740ujc73fq4pt0-a.singapore-postgres.render.com/bookstore_q5pc"
 )
+
+
+def _resolve_database_url(raw: str) -> str:
+    """Safety net: if DATABASE_URL points at Render's *internal* Postgres
+    hostname (e.g. dpg-xxxx-a with no domain — which only resolves inside
+    Render's network, in the same region), rewrite it to the external
+    hostname so it works from any region.
+    Region suffix comes from RENDER_POSTGRES_REGION (default: singapore)."""
+    if not raw:
+        return raw
+    match = re.match(
+        r"^(postgres(?:ql)?://[^@/]+@)(dpg-[A-Za-z0-9]+-a)(:\d+)?(/.*)?$",
+        raw,
+    )
+    if match and "." not in match.group(2):
+        region = os.getenv("RENDER_POSTGRES_REGION", "singapore")
+        port = match.group(3) or ""
+        path = match.group(4) or ""
+        return (
+            f"{match.group(1)}{match.group(2)}."
+            f"{region}-postgres.render.com{port}{path}"
+        )
+    return raw
 
 
 class Settings(BaseSettings):
@@ -32,6 +56,13 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+# Safety net: if the configured URL uses Render's *internal* hostname,
+# rewrite it to the external hostname so it resolves from any region.
+_resolved = _resolve_database_url(settings.DATABASE_URL)
+if _resolved != settings.DATABASE_URL:
+    print("INFO: DATABASE_URL used a Render internal host — rewrote to the external hostname.")
+    settings.DATABASE_URL = _resolved
 
 # Fail fast with a clear message instead of a cryptic DNS/auth error at deploy time.
 if not settings.DATABASE_URL or "PASSWORD_HERE" in settings.DATABASE_URL:
