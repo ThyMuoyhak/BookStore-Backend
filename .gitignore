@@ -66,3 +66,6 @@ celerybeat-schedule
 # SQLite
 *.db
 *.sqlite
+
+# Allow .python-version so Render can pin the Python runtime
+!.python-version
