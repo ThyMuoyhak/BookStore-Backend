@@ -12,6 +12,10 @@ app = FastAPI(
     title="Book Store API",
     description="Backend API for the Book Store - manage books with multiple images, login, and signup",
     version="1.0.0",
+    # Disable auto-generated API docs (/docs, /redoc, /openapi.json)
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
 )
 
 app.add_middleware(
@@ -30,7 +34,6 @@ app.include_router(books.router, prefix="/api")
 def root():
     return {
         "message": "Welcome to Book Store API",
-        "docs": "/docs",
         "health": "/api/health",
     }
 
