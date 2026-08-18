@@ -47,7 +47,11 @@ class Settings(BaseSettings):
 
     @property
     def CORS_ORIGINS(self) -> List[str]:
-        origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:5173,http://localhost:8000")
+        origins = os.getenv(
+            "CORS_ORIGINS",
+            "http://localhost:3000,http://localhost:3001,http://localhost:5173,http://localhost:8000,"
+            "https://marvelous-conkies-eaa8ca.netlify.app,https://magenta-dieffenbachia-043f38.netlify.app",
+        )
         return [origin.strip() for origin in origins.split(",") if origin.strip()]
 
     class Config:
