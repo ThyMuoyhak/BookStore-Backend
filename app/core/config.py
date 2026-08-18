@@ -47,12 +47,28 @@ class Settings(BaseSettings):
 
     @property
     def CORS_ORIGINS(self) -> List[str]:
-        origins = os.getenv(
-            "CORS_ORIGINS",
-            "http://localhost:3000,http://localhost:3001,http://localhost:5173,http://localhost:8000,"
-            "https://marvelous-conkies-eaa8ca.netlify.app,https://magenta-dieffenbachia-043f38.netlify.app",
-        )
-        return [origin.strip() for origin in origins.split(",") if origin.strip()]
+        # Origins from the CORS_ORIGINS env var (optional).
+        env_origins = [
+            o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()
+        ]
+        # Production + dev origins that are ALWAYS allowed, merged with the
+        # env var so a CORS_ORIGINS override can't accidentally break the
+        # deployed frontends.
+        default_origins = [
+            "http://localhost:3000",
+            "http://localhost:3001",
+            "http://localhost:5173",
+            "http://localhost:8000",
+            "https://marvelous-conkies-eaa8ca.netlify.app",
+            "https://magenta-dieffenbachia-043f38.netlify.app",
+        ]
+        seen = set()
+        merged = []
+        for origin in env_origins + default_origins:
+            if origin not in seen:
+                seen.add(origin)
+                merged.append(origin)
+        return merged
 
     class Config:
         env_file = ".env"
