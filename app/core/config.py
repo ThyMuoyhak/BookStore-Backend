@@ -6,9 +6,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Render's EXTERNAL hostname (resolves from any region). The Internal
-# hostname (dpg-xxxx without a domain) only works inside Render's network,
-# in the same region as the database — that's why the app default uses the
 # external host and requires the real password via the DATABASE_URL env var.
 DEFAULT_DATABASE_URL = ""
 
