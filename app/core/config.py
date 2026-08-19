@@ -10,10 +10,7 @@ load_dotenv()
 # hostname (dpg-xxxx without a domain) only works inside Render's network,
 # in the same region as the database — that's why the app default uses the
 # external host and requires the real password via the DATABASE_URL env var.
-DEFAULT_DATABASE_URL = (
-    "postgresql://bookstore_q5pc_user:PASSWORD_HERE@"
-    "dpg-d9u8r9740ujc73fq4pt0-a.singapore-postgres.render.com/bookstore_q5pc"
-)
+DEFAULT_DATABASE_URL = ""
 
 
 def _resolve_database_url(raw: str) -> str:
@@ -59,8 +56,6 @@ class Settings(BaseSettings):
             "http://localhost:3001",
             "http://localhost:5173",
             "http://localhost:8000",
-            "https://marvelous-conkies-eaa8ca.netlify.app",
-            "https://magenta-dieffenbachia-043f38.netlify.app",
         ]
         seen = set()
         merged = []
